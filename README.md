@@ -1,82 +1,96 @@
 # Dataset Perguruan Tinggi Indonesia
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![API Status](https://img.shields.io/badge/api-live-green)](https://api.ibnuhabib.web.id/api/universities)
 [![Records](https://img.shields.io/badge/records-143-orange)](perguruan-tinggi-indonesia.csv)
 
-Data seluruh perguruan tinggi negeri, swasta, dan kedinasan di Indonesia beserta statistik kuota dan peminat.
+Data 143 perguruan tinggi **negeri peserta SNPMB 2024** beserta statistik jumlah program studi, daya tampung, dan peminat.
+
+Catatan cakupan (koreksi dari dokumentasi versi lama): berkas ini **bukan** daftar seluruh PTN, swasta, dan kedinasan di Indonesia. Semua 143 baris berasal dari daftar peserta SNPMB dan kolom `type` bernilai `Negeri` untuk seluruh baris. Kolom `logo_url` kosong di semua baris (tidak ada logo di sumber).
 
 ## Data
 
-| File | Records | Size | Delimiter |
-|------|---------|------|-----------|
+| File | Baris | Ukuran | Delimiter |
+|------|-------|--------|-----------|
 | `perguruan-tinggi-indonesia.csv` | 143 | ~17 KB | `;` (titik koma) |
-
-## Kolom
 
 | Kolom | Deskripsi | Contoh |
 |-------|-----------|--------|
-| `id` | UUID | `006077d9-df05-486d-a020-3192db4967f9` |
-| `name` | Nama perguruan tinggi | `Universitas Indonesia` |
+| `id` | UUID perguruan tinggi (dipakai sebagai kunci relasi ke dataset prodi) | `006077d9-df05-486d-a020-3192db4967f9` |
+| `name` | Nama resmi | `Universitas Indonesia` |
 | `code` | Kode singkat | `UI` |
-| `city` | Kota | `Kota Depok` |
+| `city` | Kota/kabupaten | `Kota Depok` |
 | `region` | Provinsi | `Jawa Barat` |
-| `type` | Tipe | `Negeri`, `Swasta`, `Kedinasan` |
-| `logo_url` | URL logo | |
+| `type` | Tipe PT, seluruh baris `Negeri` | `Negeri` |
+| `logo_url` | URL logo, kosong di semua baris | (kosong) |
 | `total_majors` | Jumlah program studi | `79` |
 | `total_quota` | Total daya tampung | `3247` |
 | `total_applicants` | Total peminat | `102197` |
 
-## Contoh Data
+## Contoh data
 
 ```csv
 id;name;code;city;region;type;logo_url;total_majors;total_quota;total_applicants
 006077d9-df05-486d-a020-3192db4967f9;Universitas Indonesia;UI;Kota Depok;Jawa Barat;Negeri;;79;3247;102197
 ```
 
-## API
+## Cara pakai
 
-Gunakan [api-datasets-indonesia](https://github.com/prodhokter/api-datasets-indonesia) untuk akses REST API.
-
-**Base URL:** `https://api.ibnuhabib.web.id`
+### 1. Unduh langsung
 
 ```bash
-# Semua perguruan tinggi
-curl "https://api.ibnuhabib.web.id/api/universities"
-
-# Cari berdasarkan nama atau kode
-curl "https://api.ibnuhabib.web.id/api/universities?search=institut"
-
-# Filter PTN di Jawa Timur
-curl "https://api.ibnuhabib.web.id/api/universities?region=jawa+timur&type=negeri"
-
-# Detail + daftar program studi
-curl "https://api.ibnuhabib.web.id/api/universities/006077d9-df05-486d-a020-3192db4967f9"
-
-# Download CSV
-curl -O "https://api.ibnuhabib.web.id/download/universities.csv"
+curl -O https://raw.githubusercontent.com/prodhokter/dataset-perguruan-tinggi-indonesia/master/perguruan-tinggi-indonesia.csv
 ```
 
-**Parameter search:**
+### 2. Lewat API publik
 
-| Param | Deskripsi |
-|-------|-----------|
-| `search` | Nama atau kode PT |
-| `region` | Provinsi (exact) |
-| `type` | `Negeri`, `Swasta`, `Kedinasan` |
+Base URL: `https://datasets.snbtku.com` (hostname kedua: `https://api.ibnuhabib.web.id`)
 
-## Dataset Terkait
+```bash
+# Cari PT (nama atau kode)
+curl "https://datasets.snbtku.com/api/v1/universities?q=universitas%20indonesia&limit=5"
 
-- [api-datasets-indonesia](https://github.com/prodhokter/api-datasets-indonesia) — REST API
-- [dataset-program-studi-indonesia](https://github.com/prodhokter/dataset-program-studi-indonesia)
-- [dataset-sekolah-indonesia](https://github.com/prodhokter/dataset-sekolah-indonesia)
-- [dataset-kbbi-indonesia](https://github.com/prodhokter/dataset-kbbi-indonesia)
-- [dataset-wilayah-indonesia](https://github.com/prodhokter/dataset-wilayah-indonesia)
+# Program studi milik satu PT (pakai id PT di atas)
+curl "https://datasets.snbtku.com/api/v1/majors?university_id=006077d9-df05-486d-a020-3192db4967f9&limit=10"
+```
 
-## Sumber
+Contoh respons nyata:
 
-SNPMB / LTMPT — data resmi seleksi nasional perguruan tinggi.
+```json
+// GET /api/v1/universities?q=universitas indonesia&limit=1
+{
+  "items": [
+    {
+      "id": "006077d9-df05-486d-a020-3192db4967f9",
+      "code": "UI",
+      "name": "Universitas Indonesia",
+      "city": "Kota Depok",
+      "region": "Jawa Barat",
+      "type": "Negeri",
+      "logo_url": "",
+      "total_majors": 79,
+      "total_quota": 3247,
+      "total_applicants": 102197
+    }
+  ],
+  "limit": 1,
+  "offset": 0,
+  "total": 1
+}
+```
 
-## Lisensi
+Rate limit 120 permintaan per menit per IP, CORS terbuka, respons di-cache 5 menit.
 
-MIT — © 2025 [Ibnul Habib](https://github.com/prodhokter). Data bersumber dari institusi pemerintah Indonesia.
+## Aturan pembersihan (dipakai platform SNBTKU)
+
+1. UUID divalidasi saat impor; baris dengan UUID tidak sah dilewati.
+2. Relasi ke dataset prodi diperiksa (semua `university_id` di dataset prodi harus ada di sini).
+3. Angka kosong menjadi `NULL`.
+
+## Sumber & lisensi
+
+- Sumber: daftar peserta dan statistik SNPMB 2024.
+- Repo ini (kompilasi dan pembersihan): MIT, Copyright (c) 2025 Ibnul Habib.
+
+## Changelog
+
+Lihat [CHANGELOG.md](CHANGELOG.md).
