@@ -43,14 +43,14 @@ curl -O https://raw.githubusercontent.com/prodhokter/dataset-perguruan-tinggi-in
 
 ### 2. Lewat API publik
 
-Base URL: `https://datasets.snbtku.com` (hostname kedua: `https://api.ibnuhabib.web.id`)
+Base URL publik: `https://api.ibnuhabib.web.id`. Hostname internal untuk aplikasi SNBTKU (layanan sama): `https://datasets.snbtku.com`.
 
 ```bash
 # Cari PT (nama atau kode)
-curl "https://datasets.snbtku.com/api/v1/universities?q=universitas%20indonesia&limit=5"
+curl "https://api.ibnuhabib.web.id/api/v1/universities?q=universitas%20indonesia&limit=5"
 
 # Program studi milik satu PT (pakai id PT di atas)
-curl "https://datasets.snbtku.com/api/v1/majors?university_id=006077d9-df05-486d-a020-3192db4967f9&limit=10"
+curl "https://api.ibnuhabib.web.id/api/v1/majors?university_id=006077d9-df05-486d-a020-3192db4967f9&limit=10"
 ```
 
 Contoh respons nyata:
